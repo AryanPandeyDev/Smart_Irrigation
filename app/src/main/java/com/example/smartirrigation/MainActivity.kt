@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import com.example.smartirrigation.presentation.setup.SetupScreen
+import com.example.smartirrigation.presentation.navigation.Navigation
 import com.example.smartirrigation.presentation.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -15,7 +15,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             AppTheme {
-                SetupScreen()
+                Navigation()
             }
         }
     }

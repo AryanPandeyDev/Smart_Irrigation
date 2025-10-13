@@ -43,6 +43,11 @@ android {
 }
 
 dependencies {
+    // Preferences DataStore
+    implementation(libs.androidx.datastore.preferences)
+
+    //icons extended
+    implementation(libs.androidx.material.icons.extended)
 
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     // Hilt core
