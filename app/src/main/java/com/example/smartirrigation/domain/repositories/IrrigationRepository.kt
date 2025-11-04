@@ -9,4 +9,8 @@ interface IrrigationRepository {
 
     suspend fun setThreshold(threshold: Int) : Boolean
 
+    suspend fun setControlMode(isManual: Boolean) : Boolean
+
+    suspend fun turnOnPump(pumpStatus : Boolean) : Boolean
+
 }

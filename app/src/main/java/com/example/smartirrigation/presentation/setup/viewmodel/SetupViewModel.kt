@@ -2,7 +2,9 @@ package com.example.smartirrigation.presentation.setup.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.smartirrigation.data.local.preferences.DatastoreManager
 import com.example.smartirrigation.domain.repositories.IrrigationRepository
+import com.example.smartirrigation.domain.repositories.PreferencesRepository
 import com.example.smartirrigation.presentation.setup.state.SetupState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,15 +14,14 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SetupViewModel @Inject constructor(
+    val preferencesRepository: PreferencesRepository,
     val repository: IrrigationRepository
 ) : ViewModel() {
     var _state : MutableStateFlow<SetupState> = MutableStateFlow(SetupState())
     val state = _state.asStateFlow()
 
     init {
-        viewModelScope.launch {
-            refresh()
-        }
+        refresh()
     }
 
     fun refresh() {
@@ -46,5 +47,4 @@ class SetupViewModel @Inject constructor(
         }
 
     }
-
 }

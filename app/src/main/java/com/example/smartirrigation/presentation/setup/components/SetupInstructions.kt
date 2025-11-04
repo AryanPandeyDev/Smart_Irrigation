@@ -2,8 +2,11 @@ package com.example.smartirrigation.presentation.setup.components
 
 import android.content.Context
 import android.content.Intent
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,12 +40,14 @@ fun SetupInstructions(
     context: Context = LocalContext.current,
     onRefreshClick: () -> Unit = {}
 ) {
-    Card(
+    Box(
         modifier = modifier.fillMaxWidth()
+            .background(MaterialTheme.colorScheme.primaryContainer)
+            .border(
+                width = 2.dp,
+                color = MaterialTheme.colorScheme.outline,
+            )
             .wrapContentSize(),
-        elevation = CardDefaults.cardElevation(8.dp),
-        shape = RoundedCornerShape(40.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
     ) {
         Column(
             modifier = Modifier
@@ -169,9 +174,9 @@ fun SetupInstructions(
 @Preview(showBackground = true)
 @Composable
 fun SetupInstructionsPreview() {
-//    AppTheme {
-//        SetupInstructions(
-//            onRefreshClick = { /* Preview action */ }
-//        )
-//    }
+    AppTheme {
+        SetupInstructions(
+            onRefreshClick = { /* Preview action */ }
+        )
+    }
 }

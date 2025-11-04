@@ -9,4 +9,7 @@ sealed interface Routes {
     data object SetUpScreen : Routes
     @Serializable
     data object PlantSetupScreen : Routes
+
+    @Serializable
+    data object DashboardScreen : Routes
 }

@@ -1,8 +1,11 @@
 package com.example.smartirrigation.data.repositories
 
 import android.util.Log
-import androidx.compose.ui.autofill.ContentType
 import com.example.smartirrigation.data.network.dto.IrrigatorInfo
+import com.example.smartirrigation.data.network.dto.Mode
+import com.example.smartirrigation.data.network.dto.ModeResponse
+import com.example.smartirrigation.data.network.dto.PumpStatus
+import com.example.smartirrigation.data.network.dto.PumpStatusResponse
 import com.example.smartirrigation.data.network.dto.ResponseMessage
 import com.example.smartirrigation.data.network.dto.Threshold
 import com.example.smartirrigation.domain.repositories.IrrigationRepository
@@ -61,6 +64,7 @@ class IrrigationRepoImpl(val httpClient : HttpClient) : IrrigationRepository {
         } catch (e: Exception) {
 
             Log.d("IrrigationRepoImpl", "Error: ${e.message}")
+            e.printStackTrace()
             emit(null)
         }
     }.retryWhen { cause, attempt ->
@@ -93,9 +97,45 @@ class IrrigationRepoImpl(val httpClient : HttpClient) : IrrigationRepository {
         }
     }
 
+    override suspend fun setControlMode(isManual: Boolean): Boolean {
+        return try {
+            val response: ModeResponse? = httpClient.post("http://192.168.1.150/setMode") {
+                header("Authorization", "Bearer myStrongAdminKey123")
+                contentType(io.ktor.http.ContentType.Application.Json)
+                setBody(Mode(isManual))
+            }.body()
+            if (response != null && response.status == "ok") {
+                Log.d("IrrigationRepoImpl", "Control mode set successfully: $isManual")
+                true
+            } else {
+                Log.d("IrrigationRepoImpl", "Failed to set control mode, response: $response")
+                false
+            }
+        }catch (e: Exception) {
+            Log.d("IrrigationRepoImpl", "Error setting control mode: ${e.message}")
+            false
+        }
+    }
 
-    
-
+    override suspend fun turnOnPump(pumpStatus: Boolean): Boolean {
+        return try {
+            val response: PumpStatusResponse? = httpClient.post("http://192.168.1.150/setPump") {
+                header("Authorization", "Bearer myStrongAdminKey123")
+                contentType(io.ktor.http.ContentType.Application.Json)
+                setBody(PumpStatus(pumpStatus))
+            }.body()
+            if (response != null && response.status == "ok") {
+                Log.d("IrrigationRepoImpl", "Pump status set successfully: $pumpStatus")
+                true
+            } else {
+                Log.d("IrrigationRepoImpl", "Failed to set pump status, response: $response")
+                false
+            }
+        }catch (e: Exception) {
+            Log.d("IrrigationRepoImpl", "Error setting pump status: ${e.message}")
+            false
+        }
+    }
 
 
 }

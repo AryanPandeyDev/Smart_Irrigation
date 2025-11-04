@@ -43,6 +43,9 @@ android {
 }
 
 dependencies {
+    implementation(libs.androidx.core.splashscreen)
+    //Glass Effect
+    implementation(libs.core.ktx)
     // Preferences DataStore
     implementation(libs.androidx.datastore.preferences)
 
