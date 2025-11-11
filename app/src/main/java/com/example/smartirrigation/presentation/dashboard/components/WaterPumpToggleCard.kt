@@ -35,7 +35,7 @@ import com.primex.core.blur.legacyBackgroundBlur
 @OptIn(ExperimentalToolkitApi::class)
 @Composable
 fun WaterPumpToggleCard(
-    isPumpOn: Boolean,
+    isPumpOn: Boolean?,
     modifier: Modifier = Modifier
 ) {
     Box(
@@ -68,10 +68,10 @@ fun WaterPumpToggleCard(
                 // Power Icon with background
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(40.dp)
                         .clip(CircleShape)
                         .then(
-                            if (isPumpOn) {
+                            if (isPumpOn == true) {
                                 Modifier
                             } else {
                                 Modifier
@@ -81,19 +81,19 @@ fun WaterPumpToggleCard(
                 ) {
                     Surface(
                         shape = CircleShape,
-                        color = if (isPumpOn) {
+                        color = if (isPumpOn == true) {
                             MaterialTheme.colorScheme.errorContainer
                         } else {
                             MaterialTheme.colorScheme.surfaceVariant
                         },
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(40.dp)
                     ) {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier.fillMaxSize()
                                 .border(
                                     width = 1.dp,
-                                    color = if (isPumpOn) {
+                                    color = if (isPumpOn == true) {
                                         MaterialTheme.colorScheme.error
                                     } else {
                                         MaterialTheme.colorScheme.onSurfaceVariant
@@ -102,14 +102,14 @@ fun WaterPumpToggleCard(
                                 )
                         ) {
                             Icon(
-                                imageVector = if (isPumpOn) Icons.Default.Power else Icons.Default.PowerOff,
+                                imageVector = if (isPumpOn == true) Icons.Default.Power else Icons.Default.PowerOff,
                                 contentDescription = "Water Pump",
-                                tint = if (isPumpOn) {
+                                tint = if (isPumpOn == true) {
                                     MaterialTheme.colorScheme.error
                                 } else {
                                     MaterialTheme.colorScheme.onSurfaceVariant
                                 },
-                                modifier = Modifier.size(24.dp)
+                                modifier = Modifier.size(20.dp)
 
                             )
                         }
@@ -127,16 +127,26 @@ fun WaterPumpToggleCard(
                     Text(
                         text = "Water Pump Status",
                         // Use Material Theme Typography for title
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = if (isPumpOn) "ON" else "OFF",
+                        text = if (isPumpOn != null) {
+                            if (isPumpOn) {
+                                "ON"
+                            } else {
+                                "OFF"
+                                }
+                        }else "N/A",
                         modifier = Modifier.padding(end = 4.dp),
                         overflow = TextOverflow.Visible,
                         // Use Material Theme Typography for supporting/label text
                         style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (isPumpOn == true) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        }
                     )
                 }
             }

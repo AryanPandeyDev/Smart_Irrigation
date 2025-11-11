@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Power
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
@@ -27,7 +26,11 @@ fun PumpControlDialog(
     onThresholdSet: (Int) -> Unit = {},
     isManualMode: Boolean,
     isPumpOn: Boolean,
-    onSwitchModes : (Boolean) -> Unit
+    onSwitchModes : (Boolean) -> Unit,
+    // New: loading flags from ViewModel (default to false for compatibility)
+    isPumpToggleLoading: Boolean = false,
+    isModeSwitchLoading: Boolean = false,
+    isThresholdSetLoading: Boolean = false,
 ) {
     var thresholdValue by remember { mutableStateOf("") }
 
@@ -112,16 +115,24 @@ fun PumpControlDialog(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
-                        Switch(
-                            checked = !isManualMode,
-                            onCheckedChange = {
-                                onSwitchModes(!isManualMode)
-                            },
-                            colors = SwitchDefaults.colors(
-                                checkedThumbColor = MaterialTheme.colorScheme.primary,
-                                checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+
+                        if (isModeSwitchLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
                             )
-                        )
+                        } else {
+                            Switch(
+                                checked = !isManualMode,
+                                onCheckedChange = {
+                                    onSwitchModes(!isManualMode)
+                                },
+                                colors = SwitchDefaults.colors(
+                                    checkedThumbColor = MaterialTheme.colorScheme.primary,
+                                    checkedTrackColor = MaterialTheme.colorScheme.primaryContainer
+                                )
+                            )
+                        }
                     }
                 }
 
@@ -149,24 +160,35 @@ fun PumpControlDialog(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(56.dp),
+                                enabled = !isPumpToggleLoading,
                                 colors = ButtonDefaults.buttonColors(
                                     containerColor = if (isPumpOn)
                                         MaterialTheme.colorScheme.error
                                     else
-                                        MaterialTheme.colorScheme.primary
+                                        MaterialTheme.colorScheme.primary,
+                                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+                                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant
                                 ),
                                 shape = RoundedCornerShape(16.dp)
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.Power,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = if (isPumpOn) "Turn Pump OFF" else "Turn Pump ON",
-                                    style = MaterialTheme.typography.titleMedium
-                                )
+                                if (isPumpToggleLoading) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        strokeWidth = 2.dp,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Default.Power,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = if (isPumpOn) "Turn Pump OFF" else "Turn Pump ON",
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                }
                             }
                         }
                     } else {
@@ -188,6 +210,7 @@ fun PumpControlDialog(
                                     keyboardType = KeyboardType.Number
                                 ),
                                 singleLine = true,
+                                enabled = !isThresholdSetLoading,
                                 shape = RoundedCornerShape(16.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
                                     focusedBorderColor = MaterialTheme.colorScheme.primary,
@@ -205,6 +228,9 @@ fun PumpControlDialog(
 
                             Spacer(modifier = Modifier.height(16.dp))
 
+                            val canSubmit = thresholdValue.isNotEmpty() &&
+                                    (thresholdValue.toIntOrNull() in 1..100)
+
                             Button(
                                 onClick = {
                                     val threshold = thresholdValue.toIntOrNull()
@@ -212,17 +238,23 @@ fun PumpControlDialog(
                                         onThresholdSet(threshold)
                                     }
                                 },
-                                enabled = thresholdValue.isNotEmpty() &&
-                                        thresholdValue.toIntOrNull() in 1..100,
+                                enabled = canSubmit && !isThresholdSetLoading,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .height(56.dp),
                                 shape = RoundedCornerShape(16.dp)
                             ) {
-                                Text(
-                                    text = "Set Threshold",
-                                    style = MaterialTheme.typography.titleMedium
-                                )
+                                if (isThresholdSetLoading) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(20.dp),
+                                        strokeWidth = 2.dp
+                                    )
+                                } else {
+                                    Text(
+                                        text = "Set Threshold",
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                }
                             }
                         }
                     }
@@ -250,7 +282,10 @@ fun PumpControlDialogPreview() {
             onDismiss = {},
             isManualMode = true,
             isPumpOn = false,
-            onSwitchModes = {}
+            onSwitchModes = {},
+            isPumpToggleLoading = false,
+            isModeSwitchLoading = false,
+            isThresholdSetLoading = false,
         )
     }
 }

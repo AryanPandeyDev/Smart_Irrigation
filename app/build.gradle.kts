@@ -43,6 +43,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.jetpack.loading)
     implementation(libs.androidx.core.splashscreen)
     //Glass Effect
     implementation(libs.core.ktx)

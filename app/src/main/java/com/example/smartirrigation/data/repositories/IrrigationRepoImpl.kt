@@ -45,22 +45,38 @@ class IrrigationRepoImpl(val httpClient : HttpClient) : IrrigationRepository {
 
                 timeout {
                     requestTimeoutMillis = Long.MAX_VALUE
-                    socketTimeoutMillis = Long.MAX_VALUE
+                    // Set socket timeout above 15s heartbeat so idle read only times out on real stalls
+                    socketTimeoutMillis = 20_000
                 }
             }.execute { response ->
-                    val channel = response.bodyAsChannel()
+                val channel = response.bodyAsChannel()
 
-                    while (!channel.isClosedForRead) {
-                        val line = channel.readUTF8Line() ?: continue
+                while (!channel.isClosedForRead) {
+                    val line = channel.readUTF8Line() ?: continue
+                    val trimmed = line.trim()
 
-                        if (line.startsWith("data: ")) {
-                            val jsonData = line.removePrefix("data: ")
-                            val irrigatorInfo = json.decodeFromString<IrrigatorInfo>(jsonData)
-                            Log.d("IrrigationRepoImpl", "Received data: $irrigatorInfo")
-                            emit(irrigatorInfo)
-                        }
+                    // Ignore empty lines and SSE comment/heartbeat lines
+                    if (trimmed.isEmpty()) continue
+                    if (trimmed.startsWith(":")) {
+                        // Comment/heartbeat: e.g., ": ping" from server
+                        continue
+                    }
+                    if (trimmed.startsWith("event: ping", ignoreCase = true)) {
+                        // Named heartbeat event; ignore
+                        continue
+                    }
+
+                    if (trimmed.startsWith("data:")) {
+                        val jsonData = trimmed.removePrefix("data:").trimStart()
+                        val irrigatorInfo = json.decodeFromString<IrrigatorInfo>(jsonData)
+                        Log.d("IrrigationRepoImpl", "Received data: $irrigatorInfo")
+                        emit(irrigatorInfo)
                     }
                 }
+                // Channel closed or response ended: signal disconnect
+                Log.d("IrrigationRepoImpl", "SSE channel closed or response ended. Emitting disconnect (null)")
+                emit(null)
+            }
         } catch (e: Exception) {
 
             Log.d("IrrigationRepoImpl", "Error: ${e.message}")

@@ -1,0 +1,2 @@
+This placeholder file is only used to inform the assistant that we will delete DisconnectBanner.kt next using a step-by-step process.
+
