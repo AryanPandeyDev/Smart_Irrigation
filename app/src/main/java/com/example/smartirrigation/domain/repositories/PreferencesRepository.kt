@@ -1,6 +1,12 @@
 package com.example.smartirrigation.domain.repositories
 
+import kotlinx.coroutines.flow.Flow
+
 interface PreferencesRepository {
+
+    suspend fun changeAskedPermission(askedPermission : Boolean)
+
+    val askedPermissionFLow : Flow<Boolean>
 
     suspend fun savePlantInfo(plantName : String) : Boolean
 

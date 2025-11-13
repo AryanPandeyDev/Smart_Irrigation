@@ -2,7 +2,9 @@ package com.example.smartirrigation.presentation.dashboard.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.smartirrigation.data.repositories.PreferencesRepoImpl
 import com.example.smartirrigation.domain.repositories.IrrigationRepository
+import com.example.smartirrigation.domain.repositories.PreferencesRepository
 import com.example.smartirrigation.presentation.dashboard.state.DashboardState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -18,9 +20,13 @@ import kotlin.math.roundToInt
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    val repository: IrrigationRepository
+    val repository: IrrigationRepository,
+    val preferencesRepoImpl: PreferencesRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(DashboardState())
+    val askedPermission = preferencesRepoImpl.askedPermissionFLow
+
+
     val state = _state.asStateFlow()
 
     init {
@@ -58,9 +64,12 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    fun onNavigationHandled() {
-        // No-op kept for compatibility
+    fun onPermissionAsked() {
+        viewModelScope.launch {
+            preferencesRepoImpl.changeAskedPermission(true)
+        }
     }
+
 
     fun onWaterPumpToggle(callBackToast : (String) -> Unit) {
         // Set loading true (UI will disable/animate the button)

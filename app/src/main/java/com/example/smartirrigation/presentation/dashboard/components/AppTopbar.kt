@@ -20,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -29,8 +30,6 @@ import androidx.compose.ui.unit.sp
 fun AppTopBar(
     title: String,
     subtitle: String,
-    isNotificationEnabled: Boolean,
-    onNotificationToggle: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val statusBarHeight = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
@@ -50,51 +49,30 @@ fun AppTopBar(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 // Title and Subtitle Section
-                Column(
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = title,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = subtitle,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Normal,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-
-                // Notification Icon Button
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.secondary,
-                            shape = CircleShape
-                        ),
-                    contentAlignment = Alignment.Center
-                ) {
-                    IconButton(
-                        onClick = onNotificationToggle,
-                        modifier = Modifier.size(40.dp)
+                if (title == "Smart Irrigation") {
+                    Column(
+                        verticalArrangement = Arrangement.Center
                     ) {
-                        Icon(
-                            imageVector = if (isNotificationEnabled) {
-                                Icons.Default.Notifications
-                            } else {
-                                Icons.Default.NotificationsOff
-                            },
-                            contentDescription = if (isNotificationEnabled) {
-                                "Notifications Enabled"
-                            } else {
-                                "Notifications Disabled"
-                            },
-                            tint = MaterialTheme.colorScheme.inversePrimary,
+                        Text(
+                            text = title,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = subtitle,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Normal,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                }else {
+                    Text(
+                        text = title,
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
             }
             HorizontalDivider(
@@ -114,10 +92,8 @@ fun AppTopBarPreview() {
 
     MaterialTheme {
         AppTopBar(
-            title = "Irrigator",
-            subtitle = "Smart Garden Control",
-            isNotificationEnabled = notificationEnabled,
-            onNotificationToggle = { notificationEnabled = !notificationEnabled }
+            title = "App Settings",
+            subtitle = "Smart Garden Control"
         )
     }
 }

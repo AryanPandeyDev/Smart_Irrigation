@@ -33,7 +33,6 @@ import com.example.smartirrigation.presentation.setup.state.PlantSetupUiState
 import com.example.smartirrigation.presentation.setup.viewmodel.PlantSetupViewModel
 import com.example.smartirrigation.presentation.ui.theme.AppTheme
 
-
 @Composable
 fun SetPreferencesScreen(
     viewModel: PlantSetupViewModel = hiltViewModel(),
@@ -42,12 +41,10 @@ fun SetPreferencesScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
 
-
-
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary)
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Box(
             modifier = Modifier
@@ -56,7 +53,7 @@ fun SetPreferencesScreen(
                 .fillMaxWidth()
                 .padding(20.dp)
                 .background(
-                    MaterialTheme.colorScheme.primaryContainer,
+                    MaterialTheme.colorScheme.surfaceContainer,
                     shape = RoundedCornerShape(24.dp)
                 ),
         ) {
@@ -71,7 +68,7 @@ fun SetPreferencesScreen(
                 Text(
                     text = "Plant Setup",
                     style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                    color = MaterialTheme.colorScheme.onSurface
                 )
 
                 Spacer(modifier = Modifier.padding(10.dp))
