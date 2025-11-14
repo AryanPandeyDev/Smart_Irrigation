@@ -18,6 +18,7 @@ import com.example.smartirrigation.data.local.preferences.DatastoreManager
 import com.example.smartirrigation.presentation.dashboard.foreground_service.PumpStatusService
 import com.example.smartirrigation.presentation.navigation.Navigation
 import com.example.smartirrigation.presentation.ui.theme.AppTheme
+import com.example.smartirrigation.presentation.utils.hasNotificationPermission
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -37,6 +38,12 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onResume() {
+        super.onResume()
+        if (hasNotificationPermission(this)) {
+            Intent(this, PumpStatusService::class.java).also {
+                startService(it)
+            }
+        }
 
     }
 }
