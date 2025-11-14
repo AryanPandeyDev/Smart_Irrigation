@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlin.math.ceil
 
 @HiltViewModel
 class PlantSetupViewModel @Inject constructor(
@@ -37,7 +38,8 @@ class PlantSetupViewModel @Inject constructor(
     fun onSave(threshold: Int, launchToast : (String) -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
             val plantSaved = preferencesRepoImpl.savePlantInfo(_uiState.value.plantType)
-            if (irrigationRepoImpl.setThreshold(threshold) && plantSaved) {
+            val thresholdReal = ceil((threshold / 100.0) * 1024).toInt()
+            if (irrigationRepoImpl.setThreshold(thresholdReal) && plantSaved) {
                 withContext(Dispatchers.Main) {
                     launchToast("Threshold set successfully")
                 }

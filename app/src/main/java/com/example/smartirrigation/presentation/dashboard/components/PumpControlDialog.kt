@@ -280,7 +280,7 @@ fun PumpControlDialogPreview() {
     MaterialTheme {
         PumpControlDialog(
             onDismiss = {},
-            isManualMode = true,
+            isManualMode = false,
             isPumpOn = false,
             onSwitchModes = {},
             isPumpToggleLoading = false,

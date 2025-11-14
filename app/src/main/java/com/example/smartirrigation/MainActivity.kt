@@ -39,7 +39,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (hasNotificationPermission(this)) {
+        if (hasNotificationPermission(
+                this,
+                permission = Manifest.permission.POST_NOTIFICATIONS
+            )) {
             Intent(this, PumpStatusService::class.java).also {
                 startService(it)
             }

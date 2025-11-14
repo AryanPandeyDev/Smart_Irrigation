@@ -27,6 +27,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.smartirrigation.presentation.setup.components.AppButton
 import com.example.smartirrigation.presentation.setup.components.AppTextField
 import com.example.smartirrigation.presentation.setup.state.PlantSetupUiState
@@ -86,10 +87,14 @@ fun SetPreferencesScreen(
 
                 AppTextField(
                     value = state.threshold,
-                    onValueChange = viewModel::updateThreshold,
+                    onValueChange = {
+                        if (it.isEmpty() || it.all { char -> char.isDigit() }) {
+                            viewModel.updateThreshold(it)
+                        }
+                    },
                     label = "Set the soil moisture threshold.",
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    placeholder = "e.g., 700",
+                    placeholder = "Moisture Threshold (%)",
                     supportingText =
                         if (state.errors.thresholdEmpty != null) state.errors.thresholdEmpty
                         else state.errors.thresholdInvalid ?: "",

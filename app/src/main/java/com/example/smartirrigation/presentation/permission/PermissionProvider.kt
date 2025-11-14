@@ -34,10 +34,10 @@ class PermissionProvider {
         val multiplePermissionResultLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestMultiplePermissions(),
             onResult = { perms ->
-                permissionsToRequest.forEach { permission ->
+                perms.forEach { (permission, isGranted) ->
                     permissionViewModel.onPermissionResult(
                         permission = permission,
-                        isGranted = perms[permission] == true
+                        isGranted = isGranted
                     )
                 }
 
