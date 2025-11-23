@@ -14,7 +14,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class SetupViewModel @Inject constructor(
-    val preferencesRepository: PreferencesRepository,
     val repository: IrrigationRepository
 ) : ViewModel() {
     var _state : MutableStateFlow<SetupState> = MutableStateFlow(SetupState())

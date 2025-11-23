@@ -54,8 +54,8 @@ class PlantSetupViewModel @Inject constructor(
     fun setErrorValues() {
         _uiState.value = _uiState.value.copy(
             errors = _uiState.value.errors.copy(
-                if (_uiState.value.plantType.isBlank()) "Plant type cannot be empty" else null,
-                 thresholdInvalid = if (_uiState.value.threshold.toIntOrNull() == null || _uiState.value.threshold.toInt() < 0 || _uiState.value.threshold.toInt() > 1023) "Threshold must be a number between 0 and 1023" else null,
+                plantError = if (_uiState.value.plantType.isBlank()) "Plant type cannot be empty" else null,
+                thresholdInvalid = if (_uiState.value.threshold.toIntOrNull() == null || _uiState.value.threshold.toInt() < 0 || _uiState.value.threshold.toInt() > 100) "Threshold percentage be a number between 0 and 100" else null,
                 thresholdEmpty = if (_uiState.value.threshold.isBlank()) "Threshold cannot be empty" else null
             )
         )
@@ -65,7 +65,7 @@ class PlantSetupViewModel @Inject constructor(
         if (_uiState.value.plantType.isNotBlank() &&
             _uiState.value.threshold.isNotBlank() &&
             _uiState.value.threshold.toInt() >= 0 &&
-            _uiState.value.threshold.toInt() <= 1023) {
+            _uiState.value.threshold.toInt() <= 100) {
             return true
         } else {
             Log.d("PlantSetupViewModel", "setIsEnabled")
