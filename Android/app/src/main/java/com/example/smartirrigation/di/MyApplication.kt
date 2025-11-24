@@ -22,8 +22,14 @@ class MyApplication : Application() {
                 "Pump Status",
                 NotificationManager.IMPORTANCE_MIN
             )
+            val alertChannel = NotificationChannel(
+                "pump_alerts",
+                "Pump Alerts",
+                NotificationManager.IMPORTANCE_HIGH
+            )
             val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
+            notificationManager.createNotificationChannel(alertChannel)
         }
     }
 

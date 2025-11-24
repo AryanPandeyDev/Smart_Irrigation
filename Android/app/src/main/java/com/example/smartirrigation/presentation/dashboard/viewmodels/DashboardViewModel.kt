@@ -158,11 +158,6 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    fun onNotificationToggle() {
-        _state.value = _state.value.copy(
-            isNotificationOn = !_state.value.isNotificationOn
-        )
-    }
 
     // Value formatting for UI (kept as-is)
     fun formatAsPercent(valueStr: String?, max: Int = 1024): String {

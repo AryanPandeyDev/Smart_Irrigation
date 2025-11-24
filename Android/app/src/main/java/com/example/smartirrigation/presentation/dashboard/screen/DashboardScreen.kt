@@ -3,6 +3,7 @@ package com.example.smartirrigation.presentation.dashboard.screen
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.res.Configuration
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -31,12 +33,14 @@ import com.example.smartirrigation.presentation.dashboard.components.PumpControl
 import com.example.smartirrigation.presentation.dashboard.components.QuickActionCardsCombined
 import com.example.smartirrigation.presentation.dashboard.components.WaterPumpToggleCard
 import com.example.smartirrigation.presentation.dashboard.state.DashboardState
+import com.example.smartirrigation.presentation.dashboard.state.DeviceState
 import com.example.smartirrigation.presentation.dashboard.viewmodels.DashboardViewModel
 import com.example.smartirrigation.presentation.permission.LocationPermissionTextProvider
 import com.example.smartirrigation.presentation.permission.PermissionProvider
 import com.example.smartirrigation.presentation.permission.NotificationPermissionTextProvider
 import com.example.smartirrigation.presentation.permission.PermissionDialog
 import com.example.smartirrigation.presentation.permission.viewmodel.PermissionViewModel
+import com.example.smartirrigation.presentation.ui.theme.AppTheme
 import com.example.smartirrigation.presentation.utils.openAppSettings
 import kotlinx.coroutines.flow.first
 
@@ -230,39 +234,36 @@ fun DashboardScreen(
     }
 }
 
-//@Preview(
-//    name = "Light Mode",
-//    showBackground = true,
-//    uiMode = Configuration.UI_MODE_NIGHT_NO
-//)
-//@Composable
-//fun DashboardScreenPreview() {
-//    AppTheme {
-//        DashboardScreen(
-//            dashboardState = DashboardState(
-//                isNotificationOn = true,
-//                deviceState = DeviceState(
-//                    soilMoisture = "650",
-//                    currentThreshold = "900",
-//                    isIrrigating = false
-//                )
-//            ),
-//            onNotificationToggle = {
-//
-//            },
-//            onWaterPumpToggle = {},
-//            onSetIrrigationMode = {},
-//            formatValue = { valueStr ->
-//                if (valueStr.isNullOrBlank()) return@DashboardScreen "N/A"
-//                val num = valueStr.toIntOrNull() ?: return@DashboardScreen "N/A"
-//                val percent = ((num.coerceIn(0, 1024).toFloat() / 1024f) * 100f).toInt()
-//                "${percent}% (${num})"
-//            }
-//        ) {
-//
-//        }
-//    }
-//}
+@Preview(
+    name = "Light Mode",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO
+)
+@Composable
+fun DashboardScreenPreview() {
+    AppTheme {
+        DashboardScreen(
+            dashboardState = DashboardState(
+                isNotificationOn = true,
+                deviceState = DeviceState(
+                    soilMoisture = "650",
+                    currentThreshold = "900",
+                    isIrrigating = false
+                )
+            ),
+            onWaterPumpToggle = {},
+            onSetIrrigationMode = {},
+            formatValue = { valueStr ->
+                if (valueStr.isNullOrBlank()) return@DashboardScreen "N/A"
+                val num = valueStr.toIntOrNull() ?: return@DashboardScreen "N/A"
+                val percent = ((num.coerceIn(0, 1024).toFloat() / 1024f) * 100f).toInt()
+                "${percent}% (${num})"
+            },
+            onSetThreshold = {},
+            onShowDialogBox = {}
+        )
+    }
+}
 //
 //@Preview(
 //    name = "Dark Mode",

@@ -7,6 +7,7 @@ import com.example.smartirrigation.data.repositories.IrrigationRepoImpl
 import com.example.smartirrigation.data.repositories.PreferencesRepoImpl
 import com.example.smartirrigation.domain.repositories.IrrigationRepository
 import com.example.smartirrigation.domain.repositories.PreferencesRepository
+import com.example.smartirrigation.presentation.utils.LocationHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -86,6 +87,12 @@ object AppModule {
     @Singleton
     fun providesPreferencesRepo(@ApplicationContext context: Context) : PreferencesRepository {
         return PreferencesRepoImpl(DatastoreManager(context))
+    }
+
+    @Provides
+    @Singleton
+    fun providesLocationHelper(@ApplicationContext context: Context): LocationHelper {
+        return LocationHelper(context)
     }
 
 }

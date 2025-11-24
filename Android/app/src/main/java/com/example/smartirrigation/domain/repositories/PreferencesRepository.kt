@@ -12,4 +12,8 @@ interface PreferencesRepository {
 
     suspend fun getPlantInfo() : String?
 
+    suspend fun saveUserLocation(location: String)
+
+    suspend fun getUserLocation(): String?
+
 }

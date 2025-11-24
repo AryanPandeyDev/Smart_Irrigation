@@ -35,4 +35,21 @@ class PreferencesRepoImpl(
             Log.d("PreferencesRepoImpl", "Error changing asked permission: ${e.message}")
         }
     }
+
+    override suspend fun saveUserLocation(location: String) {
+        try {
+            datastoreManager.saveUserLocation(location)
+        } catch (e: Exception) {
+            Log.d("PreferencesRepoImpl", "Error saving user location: ${e.message}")
+        }
+    }
+
+    override suspend fun getUserLocation(): String? {
+        return try {
+            datastoreManager.getUserLocation()
+        } catch (e: Exception) {
+            Log.d("PreferencesRepoImpl", "Error getting user location: ${e.message}")
+            null
+        }
+    }
 }

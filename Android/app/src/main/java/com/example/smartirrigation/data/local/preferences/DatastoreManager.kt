@@ -21,6 +21,7 @@ class DatastoreManager(private val context: Context) {
     companion object {
         private val PLANT_NAME = stringPreferencesKey("plant_name")
         private val ASKED_PERMISSION = booleanPreferencesKey("asked_permission")
+        private val USER_LOCATION = stringPreferencesKey("user_location")
     }
     suspend fun changeAskedPermission(askedPermission: Boolean) {
         context.dataStore.edit { prefs ->
@@ -41,5 +42,15 @@ class DatastoreManager(private val context: Context) {
 
     suspend fun getPlantInfo(): String? {
         return context.dataStore.data.first()[PLANT_NAME]
+    }
+
+    suspend fun saveUserLocation(location: String) {
+        context.dataStore.edit { prefs ->
+            prefs[USER_LOCATION] = location
+        }
+    }
+
+    suspend fun getUserLocation(): String? {
+        return context.dataStore.data.first()[USER_LOCATION]
     }
 }

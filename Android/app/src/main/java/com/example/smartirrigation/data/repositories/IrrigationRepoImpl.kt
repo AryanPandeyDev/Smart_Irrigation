@@ -21,10 +21,15 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.headers
 import io.ktor.utils.io.readUTF8Line
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.retryWhen
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.serialization.json.Json
 
 class IrrigationRepoImpl(val httpClient : HttpClient) : IrrigationRepository {
@@ -35,7 +40,9 @@ class IrrigationRepoImpl(val httpClient : HttpClient) : IrrigationRepository {
         isLenient = true
     }
 
-    override suspend fun getStatus(): Flow<IrrigatorInfo?> = flow {
+    private val repoScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private val statusFlow = flow {
         try {
             httpClient.prepareGet("http://192.168.1.150/sse") {
                 headers {
@@ -90,7 +97,13 @@ class IrrigationRepoImpl(val httpClient : HttpClient) : IrrigationRepository {
         } else {
             false
         }
-    }
+    }.shareIn(
+        scope = repoScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        replay = 1
+    )
+
+    override suspend fun getStatus(): Flow<IrrigatorInfo?> = statusFlow
 
 
     override suspend fun setThreshold(threshold: Int): Boolean {
