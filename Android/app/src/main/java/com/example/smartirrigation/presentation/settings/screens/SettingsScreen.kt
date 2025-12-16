@@ -27,22 +27,99 @@ import com.example.smartirrigation.presentation.settings.components.SettingsSect
 import com.example.smartirrigation.presentation.settings.components.SettingsToggle
 import com.example.smartirrigation.presentation.settings.viewmodel.SettingsViewModel
 
+import android.Manifest
+import android.app.Activity
+import android.content.Intent
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.app.ActivityCompat.shouldShowRequestPermissionRationale
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.smartirrigation.presentation.dashboard.foreground_service.PumpStatusService
+import com.example.smartirrigation.presentation.dashboard.viewmodels.DashboardViewModel
+import com.example.smartirrigation.presentation.permission.NotificationPermissionTextProvider
+import com.example.smartirrigation.presentation.permission.PermissionDialog
+import com.example.smartirrigation.presentation.permission.PermissionProvider
+import com.example.smartirrigation.presentation.permission.viewmodel.PermissionViewModel
+import com.example.smartirrigation.presentation.utils.hasNotificationPermission
+import com.example.smartirrigation.presentation.utils.openAppSettings
+
 @Composable
 fun SettingsScreen(
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel = hiltViewModel(),
+    dashboardViewModel: DashboardViewModel = hiltViewModel(),
+    permissionViewModel: PermissionViewModel = viewModel()
 ) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
+
+    val permissionLauncherProvider = PermissionProvider()
+    val multiplePermissionResultLauncher = permissionLauncherProvider(
+        context = context as Activity,
+        viewModel = dashboardViewModel,
+        permissionViewModel = permissionViewModel
+    )
+
+    LaunchedEffect(state.isNotificationsEnabled) {
+        if (state.isNotificationsEnabled) {
+            if (hasNotificationPermission(context, Manifest.permission.POST_NOTIFICATIONS)) {
+                Intent(context, PumpStatusService::class.java).also {
+                    context.startService(it)
+                }
+            }
+        } else {
+            Intent(context, PumpStatusService::class.java).also {
+                context.stopService(it)
+            }
+        }
+    }
 
     SettingsContent(
         state = state,
         onDarkModeToggle = viewModel::onDarkModeToggle,
-        onNotificationsToggle = viewModel::onNotificationsToggle,
+        onNotificationsToggle = { enabled ->
+            if (enabled) {
+                if (hasNotificationPermission(context, Manifest.permission.POST_NOTIFICATIONS)) {
+                    viewModel.onNotificationsToggle(true)
+                } else {
+                    multiplePermissionResultLauncher.launch(arrayOf(Manifest.permission.POST_NOTIFICATIONS))
+                }
+            } else {
+                viewModel.onNotificationsToggle(false)
+            }
+        },
         onEditPlantClick = viewModel::onEditPlantClick,
         onEditLocationClick = viewModel::onEditLocationClick,
         onDismissDialog = viewModel::onDismissDialog,
         onSavePlantName = viewModel::onSavePlantName,
         onSaveLocation = viewModel::onSaveLocation
     )
+
+    permissionViewModel.visiblePermissionDialogQueue
+        .reversed()
+        .forEach { permission ->
+            PermissionDialog(
+                permissionTextProvider = when (permission) {
+                    Manifest.permission.POST_NOTIFICATIONS -> {
+                        NotificationPermissionTextProvider()
+                    }
+                    else -> return@forEach
+                },
+                isPermanentlyDeclined = !shouldShowRequestPermissionRationale(
+                    context,
+                    permission
+                ),
+                onDismiss = permissionViewModel::dismissDialog,
+                onOkClick = {
+                    permissionViewModel.dismissDialog()
+                    multiplePermissionResultLauncher.launch(
+                        arrayOf(permission)
+                    )
+                },
+                onGoToAppSettingsClick = {
+                    context.openAppSettings()
+                }
+            )
+        }
 }
 
 @Composable

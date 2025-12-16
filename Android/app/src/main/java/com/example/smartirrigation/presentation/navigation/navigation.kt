@@ -15,7 +15,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.smartirrigation.common.AppState
 import com.example.smartirrigation.data.local.preferences.DatastoreManager
 import com.example.smartirrigation.data.repositories.PreferencesRepoImpl
 import com.example.smartirrigation.domain.repositories.PreferencesRepository

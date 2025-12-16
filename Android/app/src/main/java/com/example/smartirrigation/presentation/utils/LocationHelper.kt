@@ -15,7 +15,8 @@ import javax.inject.Inject
 import kotlin.coroutines.resume
 
 class LocationHelper (
-    private val context: Context
+    private val context: Context,
+    private val settingsClient: com.google.android.gms.location.SettingsClient
 ) {
     private val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
 
@@ -34,6 +35,30 @@ class LocationHelper (
 
         val location = getCurrentLocation() ?: return null
         return getCityFromLocation(location)
+    }
+
+    fun checkLocationSettings(
+        onSuccess: () -> Unit,
+        onFailure: (Exception) -> Unit
+    ) {
+        val locationRequest = com.google.android.gms.location.LocationRequest.Builder(
+            com.google.android.gms.location.Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+            10000
+        ).build()
+
+        val builder = com.google.android.gms.location.LocationSettingsRequest.Builder()
+            .addLocationRequest(locationRequest)
+            .setAlwaysShow(true)
+
+        val task = settingsClient.checkLocationSettings(builder.build())
+
+        task.addOnSuccessListener {
+            onSuccess()
+        }
+
+        task.addOnFailureListener { exception ->
+            onFailure(exception)
+        }
     }
 
     private suspend fun getCurrentLocation(): Location? = suspendCancellableCoroutine { cont ->

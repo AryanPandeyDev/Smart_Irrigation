@@ -25,26 +25,35 @@ class SettingsViewModel @Inject constructor(
 
     private fun loadSettings() {
         viewModelScope.launch {
-            val plantName = preferencesRepository.getPlantInfo() ?: "My Plant"
-            val userLocation = preferencesRepository.getUserLocation() ?: "Unknown Location"
-            // TODO: Load dark mode and notification prefs from repo if available
+            val plantName = preferencesRepository.getPlantInfo() ?: ""
+            val userLocation = preferencesRepository.getUserLocation() ?: ""
+            val isNotificationsEnabled = preferencesRepository.getNotificationPreference()
+            val isDarkModeEnabled = preferencesRepository.getDarkModePreference()
+            
             _state.update {
                 it.copy(
                     plantName = plantName,
-                    userLocation = userLocation
+                    userLocation = userLocation,
+                    isNotificationsEnabled = isNotificationsEnabled,
+                    isDarkModeEnabled = isDarkModeEnabled
                 )
             }
         }
     }
 
     fun onDarkModeToggle(enabled: Boolean) {
-        _state.update { it.copy(isDarkModeEnabled = enabled) }
-        // TODO: Persist dark mode preference
+        viewModelScope.launch {
+            preferencesRepository.saveDarkModePreference(enabled)
+            AppState.isDarkMode.value = enabled
+            _state.update { it.copy(isDarkModeEnabled = enabled) }
+        }
     }
 
     fun onNotificationsToggle(enabled: Boolean) {
-        _state.update { it.copy(isNotificationsEnabled = enabled) }
-        // TODO: Persist notification preference
+        viewModelScope.launch {
+            preferencesRepository.saveNotificationPreference(enabled)
+            _state.update { it.copy(isNotificationsEnabled = enabled) }
+        }
     }
 
     fun onEditPlantClick() {

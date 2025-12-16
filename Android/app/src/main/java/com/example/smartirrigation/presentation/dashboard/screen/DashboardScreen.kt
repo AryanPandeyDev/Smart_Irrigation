@@ -43,6 +43,10 @@ import com.example.smartirrigation.presentation.permission.viewmodel.PermissionV
 import com.example.smartirrigation.presentation.ui.theme.AppTheme
 import com.example.smartirrigation.presentation.utils.openAppSettings
 import kotlinx.coroutines.flow.first
+import android.content.IntentSender
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 
 
 @Composable
@@ -59,6 +63,25 @@ fun DashboardScreenWrapper(
         viewModel = viewModel,
         permissionViewModel = permissionViewModel
     )
+
+    val resolutionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            viewModel.onGpsEnabled()
+        }
+    }
+
+    LaunchedEffect(state.value.resolvableApiException) {
+        state.value.resolvableApiException?.let { exception ->
+            try {
+                val intentSenderRequest = IntentSenderRequest.Builder(exception.resolution).build()
+                resolutionLauncher.launch(intentSenderRequest)
+            } catch (e: IntentSender.SendIntentException) {
+                e.printStackTrace()
+            }
+        }
+    }
 
 
     LaunchedEffect(Unit) {

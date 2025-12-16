@@ -91,8 +91,14 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providesLocationHelper(@ApplicationContext context: Context): LocationHelper {
-        return LocationHelper(context)
+    fun provideSettingsClient(@ApplicationContext context: Context): com.google.android.gms.location.SettingsClient {
+        return com.google.android.gms.location.LocationServices.getSettingsClient(context)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLocationHelper(@ApplicationContext context: Context, settingsClient: com.google.android.gms.location.SettingsClient): LocationHelper {
+        return LocationHelper(context, settingsClient)
     }
 
 }

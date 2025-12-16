@@ -43,60 +43,51 @@ class IrrigationRepoImpl(val httpClient : HttpClient) : IrrigationRepository {
     private val repoScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     private val statusFlow = flow {
-        try {
-            httpClient.prepareGet("http://192.168.1.150/sse") {
-                headers {
-                    append(HttpHeaders.Accept, "text/event-stream")
-                    append(HttpHeaders.CacheControl, "no-cache")
-                }
-
-                timeout {
-                    requestTimeoutMillis = Long.MAX_VALUE
-                    // Set socket timeout above 15s heartbeat so idle read only times out on real stalls
-                    socketTimeoutMillis = 20_000
-                }
-            }.execute { response ->
-                val channel = response.bodyAsChannel()
-
-                while (!channel.isClosedForRead) {
-                    val line = channel.readUTF8Line() ?: continue
-                    val trimmed = line.trim()
-
-                    // Ignore empty lines and SSE comment/heartbeat lines
-                    if (trimmed.isEmpty()) continue
-                    if (trimmed.startsWith(":")) {
-                        // Comment/heartbeat: e.g., ": ping" from server
-                        continue
-                    }
-                    if (trimmed.startsWith("event: ping", ignoreCase = true)) {
-                        // Named heartbeat event; ignore
-                        continue
-                    }
-
-                    if (trimmed.startsWith("data:")) {
-                        val jsonData = trimmed.removePrefix("data:").trimStart()
-                        val irrigatorInfo = json.decodeFromString<IrrigatorInfo>(jsonData)
-                        Log.d("IrrigationRepoImpl", "Received data: $irrigatorInfo")
-                        emit(irrigatorInfo)
-                    }
-                }
-                // Channel closed or response ended: signal disconnect
-                Log.d("IrrigationRepoImpl", "SSE channel closed or response ended. Emitting disconnect (null)")
-                emit(null)
+        httpClient.prepareGet("http://192.168.1.150/sse") {
+            headers {
+                append(HttpHeaders.Accept, "text/event-stream")
+                append(HttpHeaders.CacheControl, "no-cache")
             }
-        } catch (e: Exception) {
 
-            Log.d("IrrigationRepoImpl", "Error: ${e.message}")
-            e.printStackTrace()
+            timeout {
+                requestTimeoutMillis = Long.MAX_VALUE
+                // Set socket timeout above 15s heartbeat so idle read only times out on real stalls
+                socketTimeoutMillis = 20_000
+            }
+        }.execute { response ->
+            val channel = response.bodyAsChannel()
+
+            while (!channel.isClosedForRead) {
+                val line = channel.readUTF8Line() ?: continue
+                val trimmed = line.trim()
+
+                // Ignore empty lines and SSE comment/heartbeat lines
+                if (trimmed.isEmpty()) continue
+                if (trimmed.startsWith(":")) {
+                    // Comment/heartbeat: e.g., ": ping" from server
+                    continue
+                }
+                if (trimmed.startsWith("event: ping", ignoreCase = true)) {
+                    // Named heartbeat event; ignore
+                    continue
+                }
+
+                if (trimmed.startsWith("data:")) {
+                    val jsonData = trimmed.removePrefix("data:").trimStart()
+                    val irrigatorInfo = json.decodeFromString<IrrigatorInfo>(jsonData)
+                    Log.d("IrrigationRepoImpl", "Received data: $irrigatorInfo")
+                    emit(irrigatorInfo)
+                }
+            }
+            // Channel closed or response ended: signal disconnect
+            Log.d("IrrigationRepoImpl", "SSE channel closed or response ended. Emitting disconnect (null)")
             emit(null)
         }
     }.retryWhen { cause, attempt ->
-        if (attempt < 5) {
-            delay(2000)
-            true
-        } else {
-            false
-        }
+        Log.d("IrrigationRepoImpl", "Error: ${cause.message}. Retrying...")
+        emit(null) // Signal disconnect to UI
+        delay(2000)
+        true // Retry indefinitely
     }.shareIn(
         scope = repoScope,
         started = SharingStarted.WhileSubscribed(5000),

@@ -15,5 +15,8 @@ interface PreferencesRepository {
     suspend fun saveUserLocation(location: String)
 
     suspend fun getUserLocation(): String?
-
+    suspend fun saveNotificationPreference(enabled: Boolean)
+    suspend fun getNotificationPreference(): Boolean
+    suspend fun saveDarkModePreference(enabled: Boolean)
+    suspend fun getDarkModePreference(): Boolean
 }

@@ -11,6 +11,7 @@ data class DashboardState(
     val isPumpToggleLoading: Boolean = false,
     val isModeSwitchLoading: Boolean = false,
     val isThresholdSetLoading: Boolean = false,
+    val resolvableApiException: com.google.android.gms.common.api.ResolvableApiException? = null,
     val deviceState: DeviceState = DeviceState()
 )
 

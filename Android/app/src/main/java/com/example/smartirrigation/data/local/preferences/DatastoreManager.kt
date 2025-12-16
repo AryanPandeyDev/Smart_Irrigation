@@ -22,6 +22,8 @@ class DatastoreManager(private val context: Context) {
         private val PLANT_NAME = stringPreferencesKey("plant_name")
         private val ASKED_PERMISSION = booleanPreferencesKey("asked_permission")
         private val USER_LOCATION = stringPreferencesKey("user_location")
+        private val NOTIFICATION_ENABLED = booleanPreferencesKey("notification_enabled")
+        private val DARK_MODE_ENABLED = booleanPreferencesKey("dark_mode_enabled")
     }
     suspend fun changeAskedPermission(askedPermission: Boolean) {
         context.dataStore.edit { prefs ->
@@ -52,5 +54,25 @@ class DatastoreManager(private val context: Context) {
 
     suspend fun getUserLocation(): String? {
         return context.dataStore.data.first()[USER_LOCATION]
+    }
+
+    suspend fun saveNotificationPreference(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[NOTIFICATION_ENABLED] = enabled
+        }
+    }
+
+    suspend fun getNotificationPreference(): Boolean {
+        return context.dataStore.data.first()[NOTIFICATION_ENABLED] ?: false
+    }
+
+    suspend fun saveDarkModePreference(enabled: Boolean) {
+        context.dataStore.edit { prefs ->
+            prefs[DARK_MODE_ENABLED] = enabled
+        }
+    }
+
+    suspend fun getDarkModePreference(): Boolean {
+        return context.dataStore.data.first()[DARK_MODE_ENABLED] ?: false
     }
 }

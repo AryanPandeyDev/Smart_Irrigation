@@ -21,7 +21,8 @@ import kotlin.math.roundToInt
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     val repository: IrrigationRepository,
-    val preferencesRepoImpl: PreferencesRepository
+    val preferencesRepoImpl: PreferencesRepository,
+    val locationHelper: com.example.smartirrigation.presentation.utils.LocationHelper
 ) : ViewModel() {
     private val _state = MutableStateFlow(DashboardState())
     val askedPermission = preferencesRepoImpl.askedPermissionFLow
@@ -31,6 +32,41 @@ class DashboardViewModel @Inject constructor(
 
     init {
         startCollectingData()
+        checkAndFetchLocation()
+    }
+
+    private fun checkAndFetchLocation() {
+        viewModelScope.launch {
+            val savedLocation = preferencesRepoImpl.getUserLocation()
+            if (savedLocation.isNullOrBlank()) {
+                if (locationHelper.hasLocationPermission()) {
+                    locationHelper.checkLocationSettings(
+                        onSuccess = {
+                            fetchAndSaveLocation()
+                        },
+                        onFailure = { exception ->
+                            if (exception is com.google.android.gms.common.api.ResolvableApiException) {
+                                _state.value = _state.value.copy(resolvableApiException = exception)
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    private fun fetchAndSaveLocation() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val city = locationHelper.getCurrentCity()
+            if (city != null) {
+                preferencesRepoImpl.saveUserLocation(city)
+            }
+        }
+    }
+
+    fun onGpsEnabled() {
+        fetchAndSaveLocation()
+        _state.value = _state.value.copy(resolvableApiException = null)
     }
 
     fun startCollectingData() {

@@ -52,4 +52,38 @@ class PreferencesRepoImpl(
             null
         }
     }
+
+    override suspend fun saveNotificationPreference(enabled: Boolean) {
+        try {
+            datastoreManager.saveNotificationPreference(enabled)
+        } catch (e: Exception) {
+            Log.d("PreferencesRepoImpl", "Error saving notification preference: ${e.message}")
+        }
+    }
+
+    override suspend fun getNotificationPreference(): Boolean {
+        return try {
+            datastoreManager.getNotificationPreference()
+        } catch (e: Exception) {
+            Log.d("PreferencesRepoImpl", "Error getting notification preference: ${e.message}")
+            false
+        }
+    }
+
+    override suspend fun saveDarkModePreference(enabled: Boolean) {
+        try {
+            datastoreManager.saveDarkModePreference(enabled)
+        } catch (e: Exception) {
+            Log.d("PreferencesRepoImpl", "Error saving dark mode preference: ${e.message}")
+        }
+    }
+
+    override suspend fun getDarkModePreference(): Boolean {
+        return try {
+            datastoreManager.getDarkModePreference()
+        } catch (e: Exception) {
+            Log.d("PreferencesRepoImpl", "Error getting dark mode preference: ${e.message}")
+            false
+        }
+    }
 }

@@ -14,7 +14,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.example.smartirrigation.common.AppState
 import com.example.smartirrigation.data.local.preferences.DatastoreManager
 import com.example.smartirrigation.domain.repositories.PreferencesRepository
 import com.example.smartirrigation.presentation.dashboard.foreground_service.PumpStatusService
@@ -32,17 +31,20 @@ import javax.inject.Inject
 class MainActivity : ComponentActivity() {
 
     @Inject
-    lateinit var locationHelper: LocationHelper
-
-    @Inject
     lateinit var preferencesRepository: PreferencesRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
+        
+        lifecycleScope.launch(Dispatchers.Main) {
+            val isDarkMode = preferencesRepository.getDarkModePreference()
+            AppState.isDarkMode.value = isDarkMode
+        }
+
         setContent {
-            AppTheme(AppState.isDarkMode) {
+            AppTheme(AppState.isDarkMode.value) {
                 Navigation()
             }
         }
@@ -50,31 +52,28 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (hasNotificationPermission(
-                this,
-                permission = Manifest.permission.POST_NOTIFICATIONS
-            )) {
-            Intent(this, PumpStatusService::class.java).also {
-                startService(it)
-            }
-        }
-        
-        checkAndSaveLocation()
-    }
-
-    private fun checkAndSaveLocation() {
         lifecycleScope.launch {
-            val savedLocation = preferencesRepository.getUserLocation()
-            if (savedLocation.isNullOrBlank()) {
-                if (locationHelper.hasLocationPermission()) {
-                    withContext(Dispatchers.IO) {
-                        val city = locationHelper.getCurrentCity()
-                        if (city != null) {
-                            preferencesRepository.saveUserLocation(city)
-                            Log.d("LocationCity", "Location saved: $city")
-                        } else {
-                            Log.d("LocationCity", "Could not fetch city")
-                        }
+            val hasPermission = hasNotificationPermission(
+                this@MainActivity,
+                permission = Manifest.permission.POST_NOTIFICATIONS
+            )
+
+            if (!hasPermission) {
+                // Permission revoked in settings, update DataStore and stop service
+                preferencesRepository.saveNotificationPreference(false)
+                Intent(this@MainActivity, PumpStatusService::class.java).also {
+                    stopService(it)
+                }
+            } else {
+                // Permission granted, respect user preference
+                if (preferencesRepository.getNotificationPreference()) {
+                    Intent(this@MainActivity, PumpStatusService::class.java).also {
+                        startService(it)
+                    }
+                } else {
+                    // Permission granted but toggle is OFF, ensure service is stopped
+                    Intent(this@MainActivity, PumpStatusService::class.java).also {
+                        stopService(it)
                     }
                 }
             }
