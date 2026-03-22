@@ -2,22 +2,9 @@
 
 An intelligent IoT irrigation system that combines **ESP8266 hardware** with an **Android mobile app** and **AI-powered recommendations** to optimize plant watering.
 
-<table>
-      <tr>
-            <td align="center" width="50%">
-                  <b>Demo Video</b><br />
-                  <a href="demo.mp4">
-                        <img src="images/ESPdevice.jpeg" alt="Watch demo video" width="100%" />
-                  </a>
-                  <br />
-                  <a href="demo.mp4">▶ Watch Demo</a>
-            </td>
-            <td align="center" width="50%">
-                  <b>ESP Device</b><br />
-                  <img src="images/ESPdevice.jpeg" alt="ESP device" width="100%" />
-            </td>
-      </tr>
-</table>
+| Demo Video | ESP Device |
+|---|---|
+| [![Watch Demo](images/ESPdevice.jpeg)](./demo.mp4)<br/>[▶ Watch Demo Video](./demo.mp4) | ![ESP device](images/ESPdevice.jpeg) |
 
 ## 🎯 Overview
 
