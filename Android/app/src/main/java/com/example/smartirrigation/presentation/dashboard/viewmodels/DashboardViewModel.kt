@@ -1,10 +1,13 @@
 package com.example.smartirrigation.presentation.dashboard.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.smartirrigation.data.local.model.PumpLogEntry
 import com.example.smartirrigation.data.repositories.PreferencesRepoImpl
 import com.example.smartirrigation.domain.repositories.IrrigationRepository
 import com.example.smartirrigation.domain.repositories.PreferencesRepository
+import com.example.smartirrigation.domain.repositories.PumpLogRepository
 import com.example.smartirrigation.presentation.dashboard.state.DashboardState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -22,11 +25,14 @@ import kotlin.math.roundToInt
 class DashboardViewModel @Inject constructor(
     val repository: IrrigationRepository,
     val preferencesRepoImpl: PreferencesRepository,
-    val locationHelper: com.example.smartirrigation.presentation.utils.LocationHelper
+    val locationHelper: com.example.smartirrigation.presentation.utils.LocationHelper,
+    private val pumpLogRepository: PumpLogRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(DashboardState())
     val askedPermission = preferencesRepoImpl.askedPermissionFLow
-
+    
+    // Track last pump status for logging
+    private var lastKnownPumpStatus: Boolean? = null
 
     val state = _state.asStateFlow()
 
@@ -82,6 +88,23 @@ class DashboardViewModel @Inject constructor(
                 }
                 .collect { irrigatorInfo ->
                     if (irrigatorInfo != null) {
+                        val currentPumpStatus = irrigatorInfo.relayStatus
+                        
+                        // Log pump status change (backup for when service is disabled)
+                        if (lastKnownPumpStatus != null && lastKnownPumpStatus != currentPumpStatus) {
+                            val logEntry = PumpLogEntry(
+                                pumpStatus = currentPumpStatus,
+                                soilMoisture = irrigatorInfo.soilMoisture,
+                                threshold = irrigatorInfo.threshold,
+                                mode = irrigatorInfo.mode
+                            )
+                            viewModelScope.launch {
+                                pumpLogRepository.addLogEntry(logEntry)
+                                Log.d("DashboardViewModel", "Logged pump state change: $logEntry")
+                            }
+                        }
+                        lastKnownPumpStatus = currentPumpStatus
+                        
                         _state.value = _state.value.copy(
                             isConnected = true,
                             deviceState = _state.value.deviceState.copy(

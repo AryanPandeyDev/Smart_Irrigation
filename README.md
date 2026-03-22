@@ -2,6 +2,19 @@
 
 An intelligent IoT irrigation system that combines **ESP8266 hardware** with an **Android mobile app** and **AI-powered recommendations** to optimize plant watering.
 
+<table>
+      <tr>
+            <td align="center" width="50%">
+                  <b>Demo Video</b><br />
+                  <video src="demo.mp4" controls width="100%"></video>
+            </td>
+            <td align="center" width="50%">
+                  <b>ESP Device</b><br />
+                  <img src="images/ESPdevice.jpeg" alt="ESP device" width="100%" />
+            </td>
+      </tr>
+</table>
+
 ## 🎯 Overview
 
 The Smart Irrigation System monitors soil moisture in real-time and controls a water pump automatically or manually. The system features an AI assistant that provides intelligent threshold recommendations based on plant type and location.

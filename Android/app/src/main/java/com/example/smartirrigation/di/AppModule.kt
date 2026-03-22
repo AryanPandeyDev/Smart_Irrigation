@@ -41,14 +41,18 @@ object AppModule {
         return HttpClient(OkHttp) {
 
             install(HttpTimeout) {
-                requestTimeoutMillis = 10000
-                connectTimeoutMillis = 10000
-                socketTimeoutMillis = 10000
+                requestTimeoutMillis = 30000
+                connectTimeoutMillis = 30000
+                socketTimeoutMillis = 30000
             }
             install(SSE)
 
             install(Logging) {
                 level = LogLevel.ALL
+
+
+
+
                 logger = object : Logger {
                     override fun log(message: String) {
                         Log.d("HttpClient", message)
@@ -91,6 +95,12 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun providesDatastoreManager(@ApplicationContext context: Context): DatastoreManager {
+        return DatastoreManager(context)
+    }
+
+    @Provides
+    @Singleton
     fun provideSettingsClient(@ApplicationContext context: Context): com.google.android.gms.location.SettingsClient {
         return com.google.android.gms.location.LocationServices.getSettingsClient(context)
     }
@@ -99,6 +109,18 @@ object AppModule {
     @Singleton
     fun provideLocationHelper(@ApplicationContext context: Context, settingsClient: com.google.android.gms.location.SettingsClient): LocationHelper {
         return LocationHelper(context, settingsClient)
+    }
+
+    @Provides
+    @Singleton
+    fun providesChatBotRepo(httpClient: HttpClient): com.example.smartirrigation.domain.repositories.ChatBotRepository {
+        return com.example.smartirrigation.data.repositories.ChatBotRepoImpl(httpClient)
+    }
+
+    @Provides
+    @Singleton
+    fun providesPumpLogRepo(datastoreManager: DatastoreManager): com.example.smartirrigation.domain.repositories.PumpLogRepository {
+        return com.example.smartirrigation.data.repositories.PumpLogRepoImpl(datastoreManager)
     }
 
 }

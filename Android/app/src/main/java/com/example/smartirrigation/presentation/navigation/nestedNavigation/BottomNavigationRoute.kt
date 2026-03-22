@@ -13,4 +13,6 @@ sealed class BottomNavigationRoute() {
     data object ChatBot : BottomNavigationRoute()
     @Serializable
     data object Settings : BottomNavigationRoute()
+    @Serializable
+    data object History : BottomNavigationRoute()
 }

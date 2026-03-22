@@ -4,14 +4,15 @@ import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.smartirrigation.MainActivity
 import com.example.smartirrigation.R
+import com.example.smartirrigation.data.local.model.PumpLogEntry
 import com.example.smartirrigation.domain.repositories.IrrigationRepository
+import com.example.smartirrigation.domain.repositories.PumpLogRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,6 +25,9 @@ class PumpStatusService : Service() {
 
     @Inject
     lateinit var repository: IrrigationRepository
+
+    @Inject
+    lateinit var pumpLogRepository: PumpLogRepository
 
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
@@ -55,8 +59,18 @@ class PumpStatusService : Service() {
                     Log.d("PumpStatusService", "Current Status: $currentStatus, Last Status: $lastPumpStatus")
                     
                     if (lastPumpStatus != null && lastPumpStatus != currentStatus) {
-                        Log.d("PumpStatusService", "Status changed! Showing notification.")
+                        Log.d("PumpStatusService", "Status changed! Showing notification and logging.")
                         showNotification(currentStatus)
+                        
+                        // Log the pump state change
+                        val logEntry = PumpLogEntry(
+                            pumpStatus = currentStatus,
+                            soilMoisture = it.soilMoisture,
+                            threshold = it.threshold,
+                            mode = it.mode
+                        )
+                        pumpLogRepository.addLogEntry(logEntry)
+                        Log.d("PumpStatusService", "Logged pump state change: $logEntry")
                     } else {
                         Log.d("PumpStatusService", "No change or initial state.")
                     }

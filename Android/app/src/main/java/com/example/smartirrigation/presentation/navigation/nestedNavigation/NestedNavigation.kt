@@ -9,6 +9,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Settings
@@ -37,8 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.composable
-import com.example.smartirrigation.presentation.chatbot.screens.ChatbotScreen
+import com.example.smartirrigation.presentation.chatbot.screens.ChatBotScreen
 import com.example.smartirrigation.presentation.dashboard.screen.DashboardScreenWrapper
+import com.example.smartirrigation.presentation.history.screens.HistoryScreen
 import com.example.smartirrigation.presentation.settings.screens.SettingsScreen
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -115,9 +117,11 @@ fun NestedNavigation(
                 }
             }
         },
-        content = {
+        content = { paddingValues ->
             NavHost(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = paddingValues.calculateBottomPadding()),
                 navController = navController,
                 startDestination = BottomNavigationRoute.Dashboard
             ) {
@@ -159,6 +163,11 @@ fun NestedNavigation(
                     DashboardScreenWrapper(
                         navigateToSetupScreen = {
                             navigateToSetup()
+                        },
+                        navigateToHistory = {
+                            navController.navigate(BottomNavigationRoute.History) {
+                                launchSingleTop = true
+                            }
                         }
                     )
                 }
@@ -186,7 +195,7 @@ fun NestedNavigation(
                         )
                     }
                 ) {
-                    ChatbotScreen()
+                    ChatBotScreen()
                 }
                 composable<BottomNavigationRoute.Settings>(
                     enterTransition = {
@@ -213,6 +222,45 @@ fun NestedNavigation(
                     },
                 ) {
                     SettingsScreen()
+                }
+                composable<BottomNavigationRoute.History>(
+                    enterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = {300},
+                            animationSpec = tween(300)
+                        ) + fadeIn(
+                            animationSpec = tween(
+                                durationMillis = 300,
+                                easing = FastOutSlowInEasing
+                            )
+                        )
+                    },
+                    exitTransition = {
+                        slideOutHorizontally (
+                            targetOffsetX = {-300},
+                            animationSpec = tween(300)
+                        ) + fadeOut(
+                            animationSpec = tween(
+                                durationMillis = 300,
+                                easing = FastOutSlowInEasing
+                            )
+                        )
+                    },
+                    popEnterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = {-500},
+                            animationSpec = tween(300)
+                        ) + fadeIn(
+                            animationSpec = tween(
+                                durationMillis = 300,
+                                easing = FastOutSlowInEasing
+                            )
+                        )
+                    }
+                ) {
+                    HistoryScreen(
+                        onBackClick = { navController.popBackStack() }
+                    )
                 }
             }
         }

@@ -54,7 +54,8 @@ fun DashboardScreenWrapper(
     viewModel: DashboardViewModel = hiltViewModel(),
     permissionViewModel: PermissionViewModel = viewModel(),
     context: Context = LocalContext.current,
-    navigateToSetupScreen: () -> Unit
+    navigateToSetupScreen: () -> Unit,
+    navigateToHistory: () -> Unit = {}
 ) {
     val state = viewModel.state.collectAsState()
     val permissionLauncherProvider = PermissionProvider()
@@ -126,7 +127,8 @@ fun DashboardScreenWrapper(
             viewModel.onShowControlDialog(showDialog)
         },
         // use the ViewModel's formatter so UI doesn't duplicate logic
-        formatValue = viewModel::formatAsPercent
+        formatValue = viewModel::formatAsPercent,
+        onHistoryClick = navigateToHistory
     )
 
     permissionViewModel.visiblePermissionDialogQueue
@@ -169,7 +171,8 @@ fun DashboardScreen(
     onSetIrrigationMode: () -> Unit,
     onSetThreshold: (Int) -> Unit = {},
     onShowDialogBox: (showDialog: Boolean) -> Unit,
-    formatValue: (String?) -> String
+    formatValue: (String?) -> String,
+    onHistoryClick: () -> Unit = {}
 ) {
 
     Surface(
@@ -226,9 +229,7 @@ fun DashboardScreen(
                     manualControlToggle = {
                         onShowDialogBox(true)
                     },
-                    historyLogsToggle = {
-
-                    }
+                    historyLogsToggle = onHistoryClick
                 )
             }
         }
@@ -283,7 +284,8 @@ fun DashboardScreenPreview() {
                 "${percent}% (${num})"
             },
             onSetThreshold = {},
-            onShowDialogBox = {}
+            onShowDialogBox = {},
+            onHistoryClick = {}
         )
     }
 }

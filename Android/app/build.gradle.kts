@@ -88,4 +88,8 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    
+    // Markdown rendering for chat
+    implementation("com.mikepenz:multiplatform-markdown-renderer:0.14.0")
+    implementation("com.mikepenz:multiplatform-markdown-renderer-m3:0.14.0")
 }
