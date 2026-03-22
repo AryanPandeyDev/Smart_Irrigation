@@ -6,7 +6,11 @@ An intelligent IoT irrigation system that combines **ESP8266 hardware** with an 
       <tr>
             <td align="center" width="50%">
                   <b>Demo Video</b><br />
-                  <video src="demo.mp4" controls width="100%"></video>
+                  <a href="demo.mp4">
+                        <img src="images/ESPdevice.jpeg" alt="Watch demo video" width="100%" />
+                  </a>
+                  <br />
+                  <a href="demo.mp4">▶ Watch Demo</a>
             </td>
             <td align="center" width="50%">
                   <b>ESP Device</b><br />
